@@ -1,0 +1,50 @@
+# Copyright Contributors to the Open Cluster Management project
+# Licensed under the Apache License 2.0
+
+FROM brew.registry.redhat.io/rh-osbs/openshift-golang-builder:rhel_8_golang_1.22 as builder
+
+WORKDIR /workspace
+
+COPY thanos .
+
+ENV GOFLAGS='-mod=mod'
+ENV CGO_ENABLED=0
+
+# Install promu and build thanos
+ARG TARGETOS TARGETARCH
+RUN wget https://github.com/prometheus/promu/releases/download/v0.17.0/promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
+&& tar -xzf promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz -C /usr/local/bin \
+&& rm promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
+&& /usr/local/bin/promu-0.17.0.${TARGETOS}-${TARGETARCH}/promu -v build --prefix /go/bin/
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+WORKDIR /
+
+COPY --from=builder /go/bin/thanos /bin/thanos
+
+USER nobody
+ENTRYPOINT [ "/bin/thanos" ]
+
+ARG IMAGE_NAME
+ARG IMAGE_DESCRIPTION
+ARG IMAGE_DISPLAY_NAME
+ARG IMAGE_NAME_ARCH
+ARG IMAGE_MAINTAINER
+ARG IMAGE_VENDOR
+ARG IMAGE_VERSION
+ARG IMAGE_RELEASE
+ARG IMAGE_SUMMARY
+ARG IMAGE_OPENSHIFT_TAGS
+
+LABEL org.label-schema.vendor="Red Hat" \
+  vendor="Red Hat, Inc." \
+  com.redhat.component="rhobs-thanos" \
+  name="$IMAGE_NAME" \
+  maintainer="$IMAGE_MAINTAINER" \
+  version="$IMAGE_VERSION" \
+  release="$IMAGE_RELEASE" \
+  description="rhobs-thanos" \
+  summary="$IMAGE_SUMMARY" \
+  io.k8s.display-name="rhobs-thanos" \
+  io.k8s.description="rhobs-thanos" \
+  io.openshift.tags="$IMAGE_OPENSHIFT_TAGS"
