@@ -1,0 +1,62 @@
+name: Update Submodule to Latest Tag
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository with Submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: false  # Not updating submodules initially
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup Branch
+        run: |
+          BRANCH_NAME="submodule-update"
+          git fetch origin $BRANCH_NAME:$BRANCH_NAME || true
+          git checkout $BRANCH_NAME || git checkout -b $BRANCH_NAME
+
+      - name: Update Submodule to Latest Tag
+        run: |
+          cd thanos
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+          git checkout $LATEST_TAG
+          cd ../..
+
+      - name: Commit Changes
+        run: |
+          git add path/to/submodule
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          else
+            git commit -m "Update submodule to latest tag $LATEST_TAG"
+          fi
+
+      - name: Push Changes
+        run: |
+          git push -u origin $BRANCH_NAME
+
+      - name: Create or Update Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          title: "Update Submodule to Latest Tag ${{ env.LATEST_TAG }}"
+          body: "This PR updates the submodule to the latest tag ${{ env.LATEST_TAG }}."
+          base: main
+          labels: |
+            dependencies
+            automated
+          update: true
