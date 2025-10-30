@@ -21,7 +21,7 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 WORKDIR /
 
 COPY --from=builder /go/bin/thanos /bin/thanos
-COPY --from=builder /workspace/LICENSE /licenses/.
+COPY --from=builder /workspace/LICENSE /licenses/LICENSE
 
 USER nobody
 ENTRYPOINT [ "/bin/thanos" ]
