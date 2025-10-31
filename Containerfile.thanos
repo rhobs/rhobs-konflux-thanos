@@ -26,26 +26,13 @@ COPY --from=builder /workspace/LICENSE /licenses/LICENSE
 USER nobody
 ENTRYPOINT [ "/bin/thanos" ]
 
-ARG IMAGE_NAME
-ARG IMAGE_DESCRIPTION
-ARG IMAGE_DISPLAY_NAME
-ARG IMAGE_NAME_ARCH
-ARG IMAGE_MAINTAINER
-ARG IMAGE_VENDOR
-ARG IMAGE_VERSION
-ARG IMAGE_RELEASE
-ARG IMAGE_SUMMARY
-ARG IMAGE_OPENSHIFT_TAGS
+ARG VERSION
 
-LABEL org.label-schema.vendor="Red Hat" \
-  vendor="Red Hat, Inc." \
+LABEL vendor="Red Hat, Inc." \
   com.redhat.component="rhobs-thanos" \
-  name="$IMAGE_NAME" \
-  maintainer="$IMAGE_MAINTAINER" \
-  version="$IMAGE_VERSION" \
-  release="$IMAGE_RELEASE" \
-  description="rhobs-thanos" \
-  summary="$IMAGE_SUMMARY" \
-  io.k8s.display-name="rhobs-thanos" \
-  io.k8s.description="rhobs-thanos" \
-  io.openshift.tags="$IMAGE_OPENSHIFT_TAGS"
+  name="thanos" \
+  maintainer="team-monitoring@redhat.com" \
+  version="$VERSION" \
+  release="$VERSION" \
+  description="Thanos is a set of components that can be composed into a highly available metric system with unlimited storage capacity, which can be added seamlessly on top of existing Prometheus deployments." \
+  summary="Highly available Prometheus setup with long term storage capabilities"
