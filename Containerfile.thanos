@@ -12,9 +12,9 @@ ENV CGO_ENABLED=0
 
 # Install promu and build thanos
 ARG TARGETOS TARGETARCH
-RUN wget https://github.com/prometheus/promu/releases/download/v0.17.0/promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
-&& tar -xzf promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz -C /usr/local/bin \
-&& rm promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
+RUN curl -sL -o promu.tar.gz https://github.com/prometheus/promu/releases/download/v0.17.0/promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
+&& tar -xzf promu.tar.gz -C /usr/local/bin \
+&& rm promu.tar.gz \
 && /usr/local/bin/promu-0.17.0.${TARGETOS}-${TARGETARCH}/promu -v build --prefix /go/bin/
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
