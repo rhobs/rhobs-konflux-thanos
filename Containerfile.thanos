@@ -12,7 +12,10 @@ ENV CGO_ENABLED=0
 
 # Install promu and build thanos
 ARG TARGETOS TARGETARCH
-RUN curl -sL -o promu.tar.gz https://github.com/prometheus/promu/releases/download/v0.17.0/promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
+# Upgrade the go-toolset package because Thanos requires Go 1.25.
+# Remove the command when the builder image gets Go 1.25 out of the box.
+RUN dnf upgrade -y go-toolset \
+&& curl -sL -o promu.tar.gz https://github.com/prometheus/promu/releases/download/v0.17.0/promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
 && tar -xzf promu.tar.gz -C /usr/local/bin \
 && rm promu.tar.gz \
 && /usr/local/bin/promu-0.17.0.${TARGETOS}-${TARGETARCH}/promu -v build --prefix /go/bin/
