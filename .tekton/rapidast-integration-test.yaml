@@ -82,3 +82,39 @@ spec:
               oc create deployment thanos --image=$IMAGE -- thanos query
               oc wait --for=condition=Available=true deployment/thanos --timeout=120s
               oc logs deployment/thanos
+
+    # Run the scanner.
+    - name: rapidast-check
+      runAfter:
+      - deploy-app
+      taskRef:
+        resolver: git
+        params:
+          - name: url
+            value: https://github.com/redhatproductsecurity/rapidast
+            # TODO change revision after merge
+          - name: revision
+            value: "0119197b4c18791b0947a12a449068f2b718e18c"
+          - name: pathInRepo
+            value: examples/konflux/rapidast-check.yaml
+      params:
+        - name: KUBECONFIG_SECRET
+          value: "$(tasks.provision-env.results.secretRef)"
+        - name: PORT_FORWARD_TARGETS
+          value: "deployment/thanos 10902:10902"
+        - name: RAPIDAST_CONFIG_VALUE
+          value: |
+            config:
+              configVersion: 6
+
+            application:
+              shortName: "rhobs-thanos-main"
+              url: "http://127.0.0.1:10902" # root URL of the application, should always point to localhost
+
+            scanners:
+              zap:
+                #spider: {}
+                passiveScan:
+                  disabledRules: ""
+                activeScan:
+                  policy: API-scan-minimal
