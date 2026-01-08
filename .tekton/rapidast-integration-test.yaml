@@ -77,7 +77,7 @@ spec:
               set -euxo pipefail
 
               IMAGE=$(echo "$SNAPSHOT" | jq -r '.components[0].containerImage')
-              echo "Extracted image: $IMAGE"
+              echo "Image: $IMAGE"
 
               oc create deployment thanos --image=$IMAGE -- thanos query
               oc wait --for=condition=Available=true deployment/thanos --timeout=120s
