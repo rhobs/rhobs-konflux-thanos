@@ -1,7 +1,7 @@
 # Copyright Contributors to the Open Cluster Management project
 # Licensed under the Apache License 2.0
 
-FROM quay.io/redhat-services-prod/openshift/boilerplate:image-v8.3.5 as builder
+FROM quay.io/redhat-services-prod/openshift/boilerplate:image-v8.4.1 as builder
 
 WORKDIR /workspace
 
@@ -12,10 +12,7 @@ ENV CGO_ENABLED=0
 
 # Install promu and build thanos
 ARG TARGETOS TARGETARCH
-# Upgrade the go-toolset package because Thanos requires Go 1.25.
-# Remove the command when the builder image gets Go 1.25 out of the box.
-RUN dnf upgrade -y go-toolset \
-&& curl -sL -o promu.tar.gz https://github.com/prometheus/promu/releases/download/v0.17.0/promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
+RUN curl -sL -o promu.tar.gz https://github.com/prometheus/promu/releases/download/v0.17.0/promu-0.17.0.${TARGETOS}-${TARGETARCH}.tar.gz \
 && tar -xzf promu.tar.gz -C /usr/local/bin \
 && rm promu.tar.gz \
 && /usr/local/bin/promu-0.17.0.${TARGETOS}-${TARGETARCH}/promu -v build --prefix /go/bin/
